@@ -73,3 +73,7 @@ in a very beta state.
 * add logic for adding Breakpoints automatically
 * keep locals in order
 * ...
+
+## Questions
+Dont hesitate to ask, leave a comment or a pull request
+
