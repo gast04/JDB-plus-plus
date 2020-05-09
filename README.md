@@ -3,6 +3,8 @@
 As I was not happy with the current debuggers available for APKs I 
 tried writing my own. For the final outcome watch: https://asciinema.org/a/328262
 
+It allows single stepping through smali code including watching and modifing locals.
+
 It is based on two steps first it annotates the APK with extra debug
 information and later debugs the annotated APK.
 Of course if there are anti tamper checks those will trigger.
