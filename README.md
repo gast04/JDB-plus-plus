@@ -1,2 +1,57 @@
-# JDB-plus-plus
-JDB++ an jdb extension for easily debugging through smali code
+# JDB++
+
+As I was not happy with the current debuggers available for APKs I 
+tried writing my own. For the final outcome watch: https://asciinema.org/a/328262
+
+It is based on two steps first it annotates the APK with extra debug
+information and later debugs the annotated APK.
+Of course if there are anti tamper checks those will trigger.
+
+It starts the application on the emulator/device and connects to it using jdb.
+Basically the debugger is a wrapper around jdb using extra debug information.
+
+## Usage
+
+It should be fairly easy to use, using the following steps:
+
+```
+pip install -r requirements.txt
+
+# decompile using apktool
+apktool d target.apk
+
+# create annotated smali files
+python prepare_app.py -f target
+
+# recompile apk
+apktool b target
+
+# sign and install
+testsign target/dist/target.apk
+adb install target/dist/target.apk
+
+# and start the debuggin
+python jdb++.py -n com.example.target -a MainActivity
+```
+
+The apktool and install steps can be included into the prepare step, 
+this is a future todo. 
+
+If you want your apk to stop on the main entry point you have to set
+a breakpoint in the `.jdbrc` file in your home directory.
+
+```
+stop in com.example.target.MainActivity.onCreate(android.os.Bundle)
+```
+
+After the debugger will stop on this breakpoint and you are free to debug
+and investigate annotated locals.
+
+
+## TODOs
+There are so many todos I dont know where to start, be aware it is
+in a very beta state.
+
+* add logic for adding Breakpoints automatically
+* keep locals in order
+* ...
