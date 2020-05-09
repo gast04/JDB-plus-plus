@@ -47,6 +47,22 @@ stop in com.example.target.MainActivity.onCreate(android.os.Bundle)
 After the debugger will stop on this breakpoint and you are free to debug
 and investigate annotated locals.
 
+## Commands
+
+| Command       | Description   | Note   |
+| ------------- |---------------| -------| 
+| n, so, next   | single step over | |
+| si, stepi     | single step into | |
+| su, step up   | step until return| |
+| c, cont, continue | continue execution | does not return without tracing |
+| locals, l     | show locals/registers | | 
+| interactive   | get jdb interavtive mode | | 
+| bps, breakpoints | list breakpoints | | 
+| bp, b | set breakpoint | bp 200 -> set bp on line 200 of current file |
+| trace | start method tracing | | 
+| untrace | stop method tracing | single steps also deactivate tracing |
+
+All commands which are not handled are directly forwarded to jdb.
 
 ## TODOs
 There are so many todos I dont know where to start, be aware it is
