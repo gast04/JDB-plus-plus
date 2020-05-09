@@ -135,8 +135,6 @@ def setBreakpoints():
   
   # TODO: see develop.py
 
-  print("DEBUG_MODE: {}".format(defs.DEBUG_MODE))
-
   layout_folder = "res/layout"
   pass
 
@@ -152,9 +150,6 @@ def parseStepLine(line: str) -> Tuple[str, str, int, str]:
   # > Method exited: return value = <void value>, "thread=main", android.os.Parcel.freeBuffer(), line=2,985 bci=17
 
   # Method exited: return value = "DexPathList[[zip file "/system/framework/org.apache.http.legacy.boot.jar", zip file "/data/app/ru.LCqASDGk.nGHqpcNnA-tyJA60rCNmGWVcRoIzQFcg==/base.apk"],nativeLibraryDirectories=[/data/app/ru.LCqASDGk.nGHqpcNnA-tyJA60rCNmGWVcRoIzQFcg==/lib/x86, /system/lib]]", "thread=main", dalvik.system.DexPathList.toString(), line=201 bci=65
-
-  if defs.DEBUG_MODE:
-    print("Line: " + line)
 
   if line.startswith("> "):
     line = line[2:]
@@ -175,5 +170,8 @@ def parseStepLine(line: str) -> Tuple[str, str, int, str]:
   # directly set debug_context
   defs.debug_context.setCurrentThread(thread)
   defs.debug_context.setCurrentMethod(function)
+
+  if defs.DEBUG_MODE:
+    print("parsed line: {} {} {} {}".format(thread, function, linenum, retval))
 
   return thread, function, linenum, retval

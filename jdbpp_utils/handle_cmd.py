@@ -84,14 +84,23 @@ def handleLocals(p):
   printLocals(p)
 
 def handleStepI(p):
+  if defs.TRACING_ACTIVE:
+    handleUnTrace(p)
+
   p.sendline(CMD_STEPI[0])
   handleStepCmd(p)
 
 def handleStepU(p):
+  if defs.TRACING_ACTIVE:
+    handleUnTrace(p)
+
   p.sendline(CMD_STEPU[0])
   handleStepCmd(p)
 
 def handleStepO(p):
+  if defs.TRACING_ACTIVE:
+    handleUnTrace(p)
+
   p.sendline(CMD_STEPO[0])
   handleStepCmd(p)
 
@@ -104,11 +113,8 @@ def handleCont(p):
       break
 
 def handleStepCmd(p) -> bool:
-  output = p.readuntil("\n\n")
-
-  if defs.DEBUG_MODE: print(b"out1: " + output)
-  output = output.split(b"\n")[1].decode("UTF-8")
-  if defs.DEBUG_MODE: print("out2: " + output)
+  output = p.readuntil("\n\n").decode("UTF-8")
+  if defs.DEBUG_MODE: print("Output: " + output)
 
   # parse step line handles if tracing is active or not
   thread, function, linenum, retval = parseStepLine(output)
@@ -129,7 +135,7 @@ def handleStepCmd(p) -> bool:
   print(colored("Thread: ","cyan") + thread + ", " + colored("Function: ", "cyan") + function)
   printLocals(p)
   printByteCode(debug_lines, linenum)
-  CONTINUE_CALLED = False
+  defs.CONTINUE_CALLED = False
   return False
 
 def handleBp(p, cmd):
