@@ -1,0 +1,8 @@
+.mypy_cache/*
+.vscode/*
+ParsedClasses.debug
+DebugFiles/*
+TestApks/*
+
+jdbpp_utils/__pycache__/*
+PreApp/__pycache__/*
