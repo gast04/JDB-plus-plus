@@ -51,15 +51,24 @@ def parseCmdArguments() -> Tuple[str, str]:
 
 
 def emulatorSetup(name, entry):
-  p = sp.Popen(["adb", "shell", "pm", "clear", name], stdout=sp.PIPE)
+
+  cmd = ["adb", "shell", "pm", "clear", name]
+  if defs.DEBUG_MODE: print("App clear cmd: {}".format(' '.join(cmd)))
+  p = sp.Popen(cmd, stdout=sp.PIPE)
   p.wait()
 
-  p = sp.Popen(["adb", "shell", "am", "start", "-D", "-n", name+"/."+entry], stdout=sp.PIPE)
+  cmd = ["adb", "shell", "am", "start", "-D", "-n", name+"/"+entry]
+  if defs.DEBUG_MODE: print("App start cmd: {}".format(' '.join(cmd)))
+  p = sp.Popen(cmd, stdout=sp.PIPE)
   p.wait()
-  time.sleep(0.5)
+  time.sleep(2)
+
 
   p = sp.Popen(["adb", "shell", "ps"], stdout=sp.PIPE)
-  p.wait()
+  print("ps command")
+  # p.wait() this causes hangs on real devices...
+  time.sleep(1)
+  print("done")
 
   processes = p.stdout.readlines()
   for proc in processes:
@@ -73,6 +82,8 @@ def emulatorSetup(name, entry):
   m = re.search("[\ ]+[0-9]+[\ ]",str(proc))
   pid = int(m.group(0).strip())
 
+  cmd = ["adb", "forward", "tcp:33333", "jdwp:{}".format(pid)]
+  if defs.DEBUG_MODE: print("Forward cmd: {}".format(' '.join(cmd)))
   p = sp.Popen(["adb", "forward", "tcp:33333", "jdwp:{}".format(pid)])
   p.wait()
 
