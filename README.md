@@ -77,7 +77,7 @@ of all shared libraries, because this simply takes ages. It only loads custom
 libraries and no system libs, this minimizes the startup overhead. Breakpoints
 on functions have to be set, this can be done by parsing the load address 
 (`info shared` command) to the `nbp` command od jdb++. This will return all function 
-addresses which start with `Java_`, this is done by invoking `radare2` so it migth
+addresses which start with `Java_`, this is done by invoking `radare2` so it might
 take a while.
 
 
