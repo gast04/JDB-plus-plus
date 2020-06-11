@@ -2,9 +2,9 @@ import pwn, time, re, readline, json
 from termcolor import colored
 import subprocess as sp
 
-import jdbpp_utils.definitions as defs
-from jdbpp_utils.handle_cmd import *
-from jdbpp_utils import emulatorSetup, parseJdbHeader
+import Jdbpp_utils.definitions as defs
+from Jdbpp_utils.handle_cmd import *
+from Jdbpp_utils import emulatorSetup, parseJdbHeader
 
 # TODO: parse from manifest
 APP_NAME, APP_ENTRY = parseCmdArguments()

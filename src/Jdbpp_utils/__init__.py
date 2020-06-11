@@ -24,16 +24,18 @@ class DebugContext:
   def currClass(self) -> str:
     return self.cname
 
-import jdbpp_utils.definitions as defs
-from jdbpp_utils.print_utils import printByteCode, printLocals
+
+import Jdbpp_utils.definitions as defs
+from Jdbpp_utils.print_utils import printByteCode, printLocals
 
 
 def parseCmdArguments() -> Tuple[str, str]:
-  global DEBUG_MODE
 
   parser = argparse.ArgumentParser(description='Debug APK files easily')
   parser.add_argument('-d', "--Debug", dest='debug_mode', default=False,
                       help='Enable Debug Mode', action="store_true")
+  parser.add_argument('-r', "--Root", dest='rooted_device', default=False,
+                      help='If device is rooted', action="store_true")
   parser.add_argument('-n', "--AppName", type=str, metavar="", dest='app_name', default=None,
                       help='App Name used to start Application')
   parser.add_argument('-a', "--MainActivity", type=str, metavar="", dest='activity', default=None,
@@ -42,6 +44,9 @@ def parseCmdArguments() -> Tuple[str, str]:
   args = parser.parse_args()
 
   defs.DEBUG_MODE = args.debug_mode
+  defs.ROOTED_DEV = args.rooted_device
+  if defs.ROOTED_DEV:
+    if defs.DEBUG_MODE: print("Running on Rooted Device")
 
   if args.app_name == None or args.activity == None:
     parser.print_help()
@@ -64,13 +69,22 @@ def emulatorSetup(name, entry):
   time.sleep(2)
 
 
-  p = sp.Popen(["adb", "shell", "ps"], stdout=sp.PIPE)
-  print("ps command")
-  # p.wait() this causes hangs on real devices...
-  time.sleep(1)
-  print("done")
+  if defs.ROOTED_DEV:
+    p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
+    p.stdin.write(b"su\n")
+    p.stdin.write(b"ps -A\n")
+    resp = p.communicate()
+    processes = resp[0].split(b"\n")
 
-  processes = p.stdout.readlines()
+  else:
+    cmd = ["adb", "shell", "ps"]
+    p = sp.Popen(cmd, stdout=sp.PIPE)
+    print("ps command")
+    # p.wait() this causes hangs on real devices...
+    time.sleep(1)
+    print("done")
+    processes = p.stdout.readlines()
+
   for proc in processes:
     if name in str(proc):
       break
@@ -80,11 +94,11 @@ def emulatorSetup(name, entry):
     sys.exit(0)
 
   m = re.search("[\ ]+[0-9]+[\ ]",str(proc))
-  pid = int(m.group(0).strip())
+  defs.APK_PID = int(m.group(0).strip())
 
-  cmd = ["adb", "forward", "tcp:33333", "jdwp:{}".format(pid)]
+  cmd = ["adb", "forward", "tcp:33333", "jdwp:{}".format(defs.APK_PID)]
   if defs.DEBUG_MODE: print("Forward cmd: {}".format(' '.join(cmd)))
-  p = sp.Popen(["adb", "forward", "tcp:33333", "jdwp:{}".format(pid)])
+  p = sp.Popen(["adb", "forward", "tcp:33333", "jdwp:{}".format(defs.APK_PID)])
   p.wait()
 
 '''

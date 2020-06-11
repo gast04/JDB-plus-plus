@@ -2,9 +2,10 @@ import sys
 from termcolor import colored
 from typing import List, Dict
 
-from jdbpp_utils import *
-import jdbpp_utils.definitions as defs
-from jdbpp_utils.print_utils import printByteCode, printLocals
+from Jdbpp_utils import *
+import Jdbpp_utils.definitions as defs
+from Jdbpp_utils.print_utils import printUI
+from NativeSupport.native import attachGdb, calcNativeBPoffset
 
 ''' 
   defined commands
@@ -22,8 +23,11 @@ CMD_TRACE = ["trace methods", "trace"]
 CMD_UNTRACE = ["untrace"]
 
 # special case
-CMD_BREAKPOINT = ["bp", "b"]
+CMD_BREAKPOINT = ["bp", "b"] # need line number as argument
 
+# native support
+CMD_ATTACH_GDB = ["attach gdb", "agdb", "ag"]
+CMD_NATIVE_BP  = ["native bp", "nbp"] # need load address as argument
 
 '''
   execute single command
@@ -47,8 +51,12 @@ def execCmd(p, cmd):
     handleTrace(p)
   elif any([cmd == x for x in CMD_UNTRACE]):
     handleUnTrace(p)
+  elif any([cmd == x for x in CMD_ATTACH_GDB]):
+    attachGdb()
   elif any([cmd.startswith(x + " ") for x in CMD_BREAKPOINT]):
     handleBp(p, cmd)
+  elif any([cmd.startswith(x + " ") for x in CMD_NATIVE_BP]):
+    calcNativeBPoffset(cmd)
   elif cmd == CMD_INTER[0]:
     p.interactive()
     sys.exit(0)
@@ -132,9 +140,7 @@ def handleStepCmd(p) -> bool:
         print("  Entered: {}".format(function))
       return True
 
-  print(colored("Thread: ","cyan") + thread + ", " + colored("Function: ", "cyan") + function)
-  printLocals(p)
-  printByteCode(debug_lines, linenum)
+  printUI(p, debug_lines, linenum, thread, function)
   defs.CONTINUE_CALLED = False
   return False
 

@@ -1,2 +1,3 @@
 termcolor==1.1.0
 pwntools==4.0.1
+r2pipe==1.4.2

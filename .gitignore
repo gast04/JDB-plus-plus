@@ -1,9 +1,11 @@
 .mypy_cache/*
 .vscode/*
 AsciiRecords/*
-ParsedClasses.debug
-DebugFiles/*
-TestApks/*
 
-jdbpp_utils/__pycache__/*
-PreApp/__pycache__/*
+src/ParsedClasses.debug
+src/DebugFiles/*
+src/TestApks/*
+
+src/Jdbpp_utils/__pycache__/*
+src/PreApp/__pycache__/*
+

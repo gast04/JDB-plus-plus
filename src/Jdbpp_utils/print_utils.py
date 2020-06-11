@@ -1,9 +1,14 @@
 from typing import Dict
 from termcolor import colored
 
-from jdbpp_utils import *
-from jdbpp_utils.var_utils import variable_list
-from jdbpp_utils.definitions import *
+from Jdbpp_utils import *
+from Jdbpp_utils.var_utils import variable_list
+import Jdbpp_utils.definitions as defs
+
+def printUI(p, debug_lines: Dict[str, str], execline: int, thread:str, function:str):
+  printHeadLine(thread, function)
+  printLocals(p)
+  printByteCode(debug_lines, execline)
 
 def printByteCode(debug_lines: Dict[str, str], execline: int):
 
@@ -17,8 +22,8 @@ def printByteCode(debug_lines: Dict[str, str], execline: int):
   print_end  = execline + 4
 
   # get list of breakpoints for current class
-  if debug_context.currClass() in bp_dict:
-    bps = bp_dict[debug_context.currClass()]
+  if defs.debug_context.currClass() in defs.bp_dict:
+    bps = defs.bp_dict[defs.debug_context.currClass()]
   else:
     bps = []
 
@@ -53,3 +58,9 @@ def printLocals(p):
     variables.append(l.decode("UTF-8"))
   varlist = variable_list(variables)
   print(colored("Locals:\n", "magenta") + str(varlist))
+
+
+def printHeadLine(thread:str, function:str):
+  print(colored("Thread: ","cyan")    + thread       + ", " + 
+        colored("Function: ", "cyan") + function     + ", " + 
+        colored("PID: ", "cyan")      + str(defs.APK_PID))

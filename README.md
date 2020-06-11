@@ -63,6 +63,9 @@ and investigate annotated locals.
 | bp, b | set breakpoint | bp 200 -> set bp on line 200 of current file |
 | trace | start method tracing | | 
 | untrace | stop method tracing | single steps also deactivate tracing |
+| ag, agdb, attach gdb | attach gdb(server) | |
+| native bp <la>, nbp <la> | get native breakpoints | <la> defines load address of library |
+
 
 All commands which are not handled are directly forwarded to jdb.
 
@@ -77,3 +80,14 @@ in a very beta state.
 ## Questions
 Dont hesitate to ask, leave a comment or a pull request
 
+## Latest Updates
+* (11.6.2020)
+  1. command line flag for rooted devices
+  2. minor bug fixes
+  3. **native debugging support** using prebuilt gdbserver and gdb from the
+    android ndk, paths have to be set in `definitions.py` file. The peda-arm 
+    file is from [alset0326](https://github.com/alset0326/peda-arm).
+    This appraoch works quite nice, and is less heavy than attaching IDA's 
+    android server.   
+    It also loads only custom libraries, no system libraries, this makes
+    the whole startup really fast (seconds!).

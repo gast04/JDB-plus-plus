@@ -1,0 +1,31 @@
+
+# start simple server on android phone
+lldb-server platform --listen 0.0.0.0:12345
+
+adb forward tcp:54321 tcp:12345
+
+
+(lldb)
+platform connect connect://localhost:54321
+
+
+
+# there is a prebuilt gdbserver and gdb client in the ndk's which work 
+out of the box, so why bothering with lldb?
+
+# on device
+./gdbserver --remote-debug --attach 0.0.0.0:12345 <pid>
+
+# on host
+adb forward tcp:54321 tcp:12345
+
+#on host
+./gdb
+target remote localhost:54321
+
+-> start gdb in a new window as I did with r2 and pwntools
+
+info shared
+
+add automatic breakpoint on all Java prefixed functions
+
