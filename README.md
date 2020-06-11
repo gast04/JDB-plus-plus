@@ -64,10 +64,21 @@ and investigate annotated locals.
 | trace | start method tracing | | 
 | untrace | stop method tracing | single steps also deactivate tracing |
 | ag, agdb, attach gdb | attach gdb(server) | |
-| native bp <la>, nbp <la> | get native breakpoints | <la> defines load address of library |
+| native bp [la], nbp [la] | get native breakpoints | [la] defines load address of library |
 
 
 All commands which are not handled are directly forwarded to jdb.
+
+## Native Support
+Only tested on `arm64-v8a` it pushes gdbserver to `/data/local/tmp` directory
+and attaches to the process (APK). It opens a new terminal (xfce4-terminal) and
+connects to it. It runs a series of gdb commands to avoid loading information 
+of all shared libraries, because this simply takes ages. It only loads custom
+libraries and no system libraies, this minimizes the startup overhead. Breakpoints
+on functions have to be set, this can be done by parsing the load address 
+(`info shared` command) to the `nbp` command. This will return all function 
+addresses which start with `Java_`.
+
 
 ## TODOs
 There are so many todos I dont know where to start, be aware it is
@@ -76,9 +87,6 @@ in a very beta state.
 * add logic for adding Breakpoints automatically
 * keep locals in order
 * ...
-
-## Questions
-Dont hesitate to ask, leave a comment or a pull request
 
 ## Latest Updates
 * (11.6.2020)
@@ -91,3 +99,6 @@ Dont hesitate to ask, leave a comment or a pull request
     android server.   
     It also loads only custom libraries, no system libraries, this makes
     the whole startup really fast (seconds!).
+
+## Questions
+Dont hesitate to ask, leave a comment or a pull request
