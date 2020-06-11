@@ -74,10 +74,11 @@ Only tested on `arm64-v8a` it pushes gdbserver to `/data/local/tmp` directory
 and attaches to the process (APK). It opens a new terminal (xfce4-terminal) and
 connects to it. It runs a series of gdb commands to avoid loading information 
 of all shared libraries, because this simply takes ages. It only loads custom
-libraries and no system libraies, this minimizes the startup overhead. Breakpoints
+libraries and no system libs, this minimizes the startup overhead. Breakpoints
 on functions have to be set, this can be done by parsing the load address 
-(`info shared` command) to the `nbp` command. This will return all function 
-addresses which start with `Java_`.
+(`info shared` command) to the `nbp` command od jdb++. This will return all function 
+addresses which start with `Java_`, this is done by invoking `radare2` so it migth
+take a while.
 
 
 ## TODOs
