@@ -16,45 +16,81 @@ import Jdbpp_utils.definitions as defs
 # get functions starting with "Java_"     suppose those are self implemented
 
 def attachGdb():
-  if not defs.ROOTED_DEV:
-    print("Attaching gdb on NON rooted device")
-    print("I dont know if this will work")
-    print("yeah, doesnt work on emulator with root... exiting")
+
+  if defs.ROOTED_DEV:
+    p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
+    p.stdin.write(b"su\n")
+    p.stdin.write("ls {}\n".format(defs.NS_GDBS_DIR).encode("UTF-8"))
+    resp = p.communicate()[0]
+  elif defs.EMULATOR:
+    # make sure adbd runs as root (haven't tested without root)
+    print("running adbd as root")
+    cmd = ["adb", "root"]
+    p = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
+    p.wait()
+
+    cmd = ["adb", "shell", "ls", defs.NS_GDBS_DIR]
+    p = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
+    resp = p.stdout.read()
+  else:
+    print("Running on unrooted Device?")
+    print("I dont know if this will work, not tested")
+    print("exit before something breaks")
     sys.exit(0)
 
-  p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
-  p.stdin.write(b"su\n")
-  p.stdin.write("ls {}\n".format(defs.NS_GDBS_DIR).encode("UTF-8"))
-  resp = p.communicate()
-  files = resp[0].split(b"\n")
+  files = resp.split(b"\n")
 
+  new_gdbs = False
   if(any([b"gdbserver" == f for f in files])):
     print("Found gdbserver on Phone")
   else:
     print("No gdbserver on Phone")
-    print("pushing {} to {}".format(defs.NS_GDBS_PATH, defs.NS_GDBS_DIR))
-    cmd = ["adb", "push", defs.NS_GDBS_PATH, defs.NS_GDBS_DIR]
+    
+    # TODO: get architecture
+    if defs.ROOTED_DEV:
+      print("pushing {} to {}".format(defs.NS_GDBS_PATH_ARM64, defs.NS_GDBS_DIR))
+      cmd = ["adb", "push", defs.NS_GDBS_PATH_ARM64, defs.NS_GDBS_DIR]
+    else:
+      print("pushing {} to {}".format(defs.NS_GDBS_PATH_X86, defs.NS_GDBS_DIR))
+      cmd = ["adb", "push", defs.NS_GDBS_PATH_X86, defs.NS_GDBS_DIR]
+
     p = sp.Popen(cmd)
     p.wait(1)
-    
-    p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
-    p.stdin.write(b"su\n")
-    p.stdin.write("chmod +x {}/gdbserver\n".format(defs.NS_GDBS_DIR).encode("UTF-8"))
-    p.communicate()
+    new_gdbs = True
+
+    if new_gdbs:
+      if defs.ROOTED_DEV:
+        p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
+        p.stdin.write(b"su\n")
+        p.stdin.write("chmod +x {}/gdbserver\n".format(defs.NS_GDBS_DIR).encode("UTF-8"))
+        p.communicate()
+      else:
+        cmd = ["adb", "shell", "chmod", "+x", "{}/gdbserver".format(defs.NS_GDBS_DIR)]
+        p = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE)
+        p.wait(1)
 
   # starting gdbserver and attaching to process
-  defs.NS_GDBS_CON = sp.Popen(["adb", "shell"], stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
-  defs.NS_GDBS_CON.stdin.write(b"su\n")
-  defs.NS_GDBS_CON.stdin.write("{}/gdbserver --remote-debug --attach {}:{} {}\n".format(
-      defs.NS_GDBS_DIR, defs.NS_GDBS_DEV_HOST, 
-      defs.NS_GDBS_DEV_PORT, str(defs.APK_PID)).encode("UTF-8"))
-  defs.NS_GDBS_CON.stdin.flush()
+  if defs.ROOTED_DEV:
+    defs.NS_GDBS_CON = sp.Popen(["adb", "shell"], stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
+    defs.NS_GDBS_CON.stdin.write(b"su\n")
+    defs.NS_GDBS_CON.stdin.write("{}/gdbserver --remote-debug --attach {}:{} {}\n".format(
+        defs.NS_GDBS_DIR, defs.NS_GDBS_DEV_HOST, 
+        defs.NS_GDBS_DEV_PORT, str(defs.APK_PID)).encode("UTF-8"))
+    defs.NS_GDBS_CON.stdin.flush()
+  else:
+    cmd = ["adb", "shell", "{}/gdbserver".format(defs.NS_GDBS_DIR),
+      "--remote-debug", "--attach", "{}:{} {}".format(
+        defs.NS_GDBS_DEV_HOST, defs.NS_GDBS_DEV_PORT, str(defs.APK_PID)), "&"]
+    defs.NS_GDBS_CON = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
+
   print("started gdbserver")
+
 
   # forward adb port
   print("forward adb port")
-  p = sp.Popen(["adb", "forward", "tcp:{}".format(defs.NS_GDB_LOCAL_PORT),
-    "tcp:{}".format(defs.NS_GDBS_DEV_PORT)])
+  p = sp.Popen(["adb", "forward",
+    "tcp:{}".format(defs.NS_GDB_LOCAL_PORT),  # PC/Localhost PORT
+    "tcp:{}".format(defs.NS_GDBS_DEV_PORT)])  # Device PORT
   p.wait()
 
   print("start gdb client")

@@ -1,0 +1,12 @@
+[-------------------------------------code-------------------------------------]
+   0xd558de02 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+2>:	in     eax,0x53
+   0xd558de04 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+4>:	push   edi
+   0xd558de05 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+5>:	push   esi
+   0xd558de06 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+6>:	and    esp,0xfffffff0
+   0xd558de09 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+9>:	sub    esp,0x50
+=> 0xd558de0c <Java_com_example_nativedebugging_MainActivity_stringFromJNI+12>:	call   0xd558de11 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+17>
+   0xd558de11 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+17>:	pop    eax
+   0xd558de12 <Java_com_example_nativedebugging_MainActivity_stringFromJNI+18>:	add    eax,0x2b05b
+
+these calls kill the gdb connection from the server 
+

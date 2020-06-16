@@ -36,6 +36,8 @@ def parseCmdArguments() -> Tuple[str, str]:
                       help='Enable Debug Mode', action="store_true")
   parser.add_argument('-r', "--Root", dest='rooted_device', default=False,
                       help='If device is rooted', action="store_true")
+  parser.add_argument('-e', "--Emulator", dest='emulator', default=False,
+                      help='If device is rooted', action="store_true")
   parser.add_argument('-n', "--AppName", type=str, metavar="", dest='app_name', default=None,
                       help='App Name used to start Application')
   parser.add_argument('-a', "--MainActivity", type=str, metavar="", dest='activity', default=None,
@@ -45,6 +47,12 @@ def parseCmdArguments() -> Tuple[str, str]:
 
   defs.DEBUG_MODE = args.debug_mode
   defs.ROOTED_DEV = args.rooted_device
+  defs.EMULATOR = args.emulator
+
+  if defs.EMULATOR and defs.ROOTED_DEV:
+    print(colored("Cannot use EMULATOR and ROOTED DEVICE at the same time","red", attrs=["bold"]))
+    sys.exit(0)
+
   if defs.ROOTED_DEV:
     if defs.DEBUG_MODE: print("Running on Rooted Device")
 
@@ -75,7 +83,6 @@ def emulatorSetup(name, entry):
     p.stdin.write(b"ps -A\n")
     resp = p.communicate()
     processes = resp[0].split(b"\n")
-
   else:
     cmd = ["adb", "shell", "ps"]
     p = sp.Popen(cmd, stdout=sp.PIPE)

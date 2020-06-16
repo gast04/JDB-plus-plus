@@ -8,9 +8,6 @@ from Jdbpp_utils import emulatorSetup, parseJdbHeader
 
 # TODO: parse from manifest
 APP_NAME, APP_ENTRY = parseCmdArguments()
-# APP_NAME = "com.example.firsttestapp"
-# APP_NAME = "ru.LCqASDGk.nGHqpcNnA"
-# APP_ENTRY = "MainActivity"
 
 # setup debugger
 print("load debug files")
