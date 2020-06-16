@@ -1,4 +1,4 @@
-import r2pipe, os
+import r2pipe, os, sys
 import subprocess as sp
 
 import Jdbpp_utils.definitions as defs
@@ -19,6 +19,8 @@ def attachGdb():
   if not defs.ROOTED_DEV:
     print("Attaching gdb on NON rooted device")
     print("I dont know if this will work")
+    print("yeah, doesnt work on emulator with root... exiting")
+    sys.exit(0)
 
   p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
   p.stdin.write(b"su\n")
@@ -56,15 +58,17 @@ def attachGdb():
   p.wait()
 
   print("start gdb client")
-  defs.NS_GDB_CON = sp.Popen([defs.NS_GDB_TERMINAL, defs.NS_GDB_TERMINAL_EXEC_CMD,
-    defs.NS_GDB_PATH, "-q"
+  cmd = [defs.NS_GDB_TERMINAL, defs.NS_GDB_TERMINAL_EXEC_CMD,
+    defs.NS_GDB_PATH, "-q",
     # set solib-search-path and sysroot to avoid loading/fetching all libraries
     "--eval-command=set auto-solib-add on",
     "--eval-command=set solib-search-path {}".format(defs.NS_LIB_PATH),
     "--eval-command=set sysroot {}".format(defs.NS_LIB_PATH),
     "--eval-command=target remote localhost:{}".format(defs.NS_GDB_LOCAL_PORT),
     "--eval-command=sharedlibrary"  # load symbols of custom libraries
-  ], stdout=sp.PIPE, stdin=sp.PIPE)
+  ]
+  print("Terminal cmd: " + ' '.join(cmd))
+  defs.NS_GDB_CON = sp.Popen(cmd) #, stdout=sp.PIPE, stdin=sp.PIPE)
 
 
 def calcNativeBPoffset(jdb_cmd):
