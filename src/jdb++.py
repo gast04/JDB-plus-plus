@@ -16,12 +16,18 @@ loadDebugFiles()
 print("Setup emulator")
 emulatorSetup(APP_NAME, APP_ENTRY)
 
+# TODO: check if some leftover gdbserver are running
+
 # setup breakpoints
 setBreakpoints()
 
 # and finally spawn the process
 print("connect to app")
-p = pwn.process(["jdb", "-connect", "com.sun.jdi.SocketAttach:hostname=localhost,port=33333"])
+cmd = ["jdb", "-connect", "com.sun.jdi.SocketAttach:hostname=localhost,port=33333"]
+# this hangs, if Android Studio runs, or crashes if the APK does not have
+# the debuggable flag set
+if defs.DEBUG_MODE: print(" ".join(cmd))
+p = pwn.process(cmd)
 print("waiting")
 
 # parse jdb header

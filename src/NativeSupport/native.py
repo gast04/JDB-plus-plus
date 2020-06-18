@@ -23,10 +23,9 @@ def attachGdb():
     p.stdin.write("ls {}\n".format(defs.NS_GDBS_DIR).encode("UTF-8"))
     resp = p.communicate()[0]
   elif defs.EMULATOR:
-    # make sure adbd runs as root (haven't tested without root)
-    print("running adbd as root")
-    cmd = ["adb", "root"]
-    p = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
+    # make sure Fadbd runs as root (haven't tested without root)
+    if defs.DEBUG_MODE: print("running adbd as root")
+    p = sp.Popen(["adb", "root"], stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
     p.wait()
 
     cmd = ["adb", "shell", "ls", defs.NS_GDBS_DIR]
@@ -44,8 +43,6 @@ def attachGdb():
   if(any([b"gdbserver" == f for f in files])):
     print("Found gdbserver on Phone")
   else:
-    print("No gdbserver on Phone")
-    
     # TODO: get architecture
     if defs.ROOTED_DEV:
       print("pushing {} to {}".format(defs.NS_GDBS_PATH_ARM64, defs.NS_GDBS_DIR))
@@ -73,27 +70,27 @@ def attachGdb():
   if defs.ROOTED_DEV:
     defs.NS_GDBS_CON = sp.Popen(["adb", "shell"], stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
     defs.NS_GDBS_CON.stdin.write(b"su\n")
-    defs.NS_GDBS_CON.stdin.write("{}/gdbserver --remote-debug --attach {}:{} {}\n".format(
+    defs.NS_GDBS_CON.stdin.write("{}/gdbserver --attach {}:{} {}\n".format(
         defs.NS_GDBS_DIR, defs.NS_GDBS_DEV_HOST, 
         defs.NS_GDBS_DEV_PORT, str(defs.APK_PID)).encode("UTF-8"))
     defs.NS_GDBS_CON.stdin.flush()
   else:
-    cmd = ["adb", "shell", "{}/gdbserver".format(defs.NS_GDBS_DIR),
-      "--remote-debug", "--attach", "{}:{} {}".format(
-        defs.NS_GDBS_DEV_HOST, defs.NS_GDBS_DEV_PORT, str(defs.APK_PID)), "&"]
-    defs.NS_GDBS_CON = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
+      cmd = ["adb", "shell", "{}/gdbserver".format(defs.NS_GDBS_DIR),
+          "--attach", "{}:{} {}".format(
+          defs.NS_GDBS_DEV_HOST, defs.NS_GDBS_DEV_PORT, str(defs.APK_PID))]
+      if defs.DEBUG_MODE: print(" ".join(cmd))
+      defs.NS_GDBS_CON = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.PIPE, stdin=sp.PIPE)
 
-  print("started gdbserver")
-
+  if defs.DEBUG_MODE: print("started gdbserver")
 
   # forward adb port
-  print("forward adb port")
-  p = sp.Popen(["adb", "forward",
+  cmd = ["adb", "forward",
     "tcp:{}".format(defs.NS_GDB_LOCAL_PORT),  # PC/Localhost PORT
-    "tcp:{}".format(defs.NS_GDBS_DEV_PORT)])  # Device PORT
+    "tcp:{}".format(defs.NS_GDBS_DEV_PORT)]   # Device PORT
+  p = sp.Popen(cmd)
+  if defs.DEBUG_MODE: print(" ".join(cmd))
   p.wait()
 
-  print("start gdb client")
   cmd = [defs.NS_GDB_TERMINAL, defs.NS_GDB_TERMINAL_EXEC_CMD,
     defs.NS_GDB_PATH, "-q",
     # set solib-search-path and sysroot to avoid loading/fetching all libraries
@@ -103,8 +100,8 @@ def attachGdb():
     "--eval-command=target remote localhost:{}".format(defs.NS_GDB_LOCAL_PORT),
     "--eval-command=sharedlibrary"  # load symbols of custom libraries
   ]
-  print("Terminal cmd: " + ' '.join(cmd))
-  defs.NS_GDB_CON = sp.Popen(cmd) #, stdout=sp.PIPE, stdin=sp.PIPE)
+  if defs.DEBUG_MODE: print("Terminal cmd: " + ' '.join(cmd))
+  defs.NS_GDB_CON = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE)
 
 
 def calcNativeBPoffset(jdb_cmd):
@@ -113,8 +110,9 @@ def calcNativeBPoffset(jdb_cmd):
   load_addr = int(jdb_cmd.split(" ")[-1],16)
 
   # load native library and get "Java_" prefixed functions
-  print("loading binary into radare2 and extracting exports")
-  print("this may take a while...")
+  if defs.DEBUG_MODE:
+    print("loading binary into radare2 and extracting exports")
+    print("this may take a while...")
   r2p = r2pipe.open(os.path.join(defs.NS_LIB_PATH, defs.NS_LIB_NAME))
   r2p.cmdj("iEj")
   exports = r2p.cmdj("iEj")
