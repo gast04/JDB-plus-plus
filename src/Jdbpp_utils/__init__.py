@@ -38,16 +38,26 @@ def parseCmdArguments() -> Tuple[str, str]:
                       help='If device is rooted', action="store_true")
   parser.add_argument('-e', "--Emulator", dest='emulator', default=False,
                       help='If device is rooted', action="store_true")
+  parser.add_argument('-q', "--quiet", dest='quiet', default=False,
+                      help='Avoids uneccesary log output', action="store_true")
   parser.add_argument('-n', "--AppName", type=str, metavar="", dest='app_name', default=None,
                       help='App Name used to start Application')
   parser.add_argument('-a', "--MainActivity", type=str, metavar="", dest='activity', default=None,
                       help='start activity of the Application')
+  parser.add_argument('-v', "--version", dest='version', default=False,
+                      help='Print version', action="store_true")
 
   args = parser.parse_args()
+
+  if args.version:
+    print(colored("JDB++ Version: ", "green") + colored(defs.JDBPP_VERSION, "blue", attrs=["bold"]))
+    print(colored("from ","yellow") + colored("and ","cyan") + colored("with ","magenta") + colored("niku", "red"))
+    sys.exit(0)
 
   defs.DEBUG_MODE = args.debug_mode
   defs.ROOTED_DEV = args.rooted_device
   defs.EMULATOR = args.emulator
+  defs.QUIET_MODE = not args.quiet
 
   if defs.EMULATOR and defs.ROOTED_DEV:
     print(colored("Cannot use EMULATOR and ROOTED DEVICE at the same time","red", attrs=["bold"]))
@@ -62,6 +72,24 @@ def parseCmdArguments() -> Tuple[str, str]:
   
   return args.app_name, args.activity
 
+def checkDefinitionPaths() -> bool:
+  retval: bool = True
+
+  if not os.path.exists(defs.NS_NDK_PATH):
+    if defs.QUIET_MODE: print("NDK Path not found")
+    retval = False
+
+  # check library sysroot path
+  if not os.path.exists(defs.NS_LIB_PATH):
+    if defs.QUIET_MODE: print("Native Library Path not found")
+    retval = False
+
+  # this is only needed for automatic function address calculation with r2
+  if not os.path.exists(os.path.join(defs.NS_LIB_PATH, defs.NS_LIB_NAME)):
+    if defs.QUIET_MODE: print("Native Library not found")
+    retval = False
+
+  return retval
 
 def emulatorSetup(name, entry):
 
@@ -86,10 +114,8 @@ def emulatorSetup(name, entry):
   else:
     cmd = ["adb", "shell", "ps"]
     p = sp.Popen(cmd, stdout=sp.PIPE)
-    print("ps command")
     # p.wait() this causes hangs on real devices...
     time.sleep(1)
-    print("done")
     processes = p.stdout.readlines()
 
   for proc in processes:
@@ -137,14 +163,14 @@ def getDebugFiles(parsed_class:str) -> Dict[str, str]:
 
 def parseJdbHeader(p, header, start_line):
   # print header
-  print("\nJDB-Header:")
+  if defs.QUIET_MODE:print("\nJDB-Header:")
   for l in header.split(b"\n"):
     l = l.decode("UTF-8")
     if len(l) == 0:
       continue
-    print("  " + l)
+    if defs.QUIET_MODE:print("  " + l)
   p.readline() # read empty newline
-  print("")
+  if defs.QUIET_MODE:print("")
 
   #print("\nparsing breakpoint line: {}".format(start_line))
 
@@ -152,6 +178,8 @@ def parseJdbHeader(p, header, start_line):
   thread, function, linenum, _ = parseStepLine(start_line)
   debug_lines = getDebugFiles(function)
 
+  print("")
+  print(defs.cmd_sep_line)
   print(colored("Thread: ","cyan") + thread + ", " + colored("Function: ", "cyan") + function)
   printLocals(p)
   printByteCode(debug_lines, linenum)

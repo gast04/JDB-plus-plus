@@ -1,0 +1,4 @@
+
+JDBPP_VERSION:str = "2.0.0" # CODENAME: quiteblue
+JDBPP_VERSION:str = "2.1.0" # adding native code emulator support
+JDBPP_VERSION:str = "2.2.0" # adding file path verification

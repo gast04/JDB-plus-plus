@@ -9,11 +9,20 @@ from Jdbpp_utils import emulatorSetup, parseJdbHeader
 # TODO: parse from manifest
 APP_NAME, APP_ENTRY = parseCmdArguments()
 
+defs.NS_DBG_OK = checkDefinitionPaths()
+if not defs.NS_DBG_OK:
+  print(colored("Native Source paths could not be found, no native debugging.", "red"))
+  print(colored("Fix necessary paths in src/Jdbpp_utils/definitions.py", "red"))
+
+print(colored("Note:", "green", attrs=["bold"]))
+print(colored("JDB is not able to attach if an Android Studio Instance is running", "green"))
+print(colored("Make sure all instances are closed.... waiting for a Breakpoint hit...", "green"))
+
 # setup debugger
-print("load debug files")
+if defs.QUIET_MODE: print("load debug files")
 loadDebugFiles()
 
-print("Setup emulator")
+if defs.QUIET_MODE: print("Setup emulator")
 emulatorSetup(APP_NAME, APP_ENTRY)
 
 # TODO: check if some leftover gdbserver are running
@@ -22,13 +31,12 @@ emulatorSetup(APP_NAME, APP_ENTRY)
 setBreakpoints()
 
 # and finally spawn the process
-print("connect to app")
+if defs.QUIET_MODE: print("connect to app")
 cmd = ["jdb", "-connect", "com.sun.jdi.SocketAttach:hostname=localhost,port=33333"]
 # this hangs, if Android Studio runs, or crashes if the APK does not have
 # the debuggable flag set
 if defs.DEBUG_MODE: print(" ".join(cmd))
 p = pwn.process(cmd)
-print("waiting")
 
 # parse jdb header
 header = p.readuntil("Breakpoint hit:", drop=True)

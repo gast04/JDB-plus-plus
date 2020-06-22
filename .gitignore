@@ -8,4 +8,5 @@ src/TestApks/*
 
 src/Jdbpp_utils/__pycache__/*
 src/PreApp/__pycache__/*
+src/NativeSupport/__pycache__/*
 

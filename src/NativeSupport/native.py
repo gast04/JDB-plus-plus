@@ -1,6 +1,8 @@
 import r2pipe, os, sys
 import subprocess as sp
 
+from termcolor import colored
+
 import Jdbpp_utils.definitions as defs
 
 # TODO:
@@ -16,6 +18,11 @@ import Jdbpp_utils.definitions as defs
 # get functions starting with "Java_"     suppose those are self implemented
 
 def attachGdb():
+
+  if not defs.NS_DBG_OK:
+    print(colored("Native Source paths could not be found, no native debugging.", "red"))
+    print(colored("Fix necessary paths in src/Jdbpp_utils/definitions.py", "red"))
+    return
 
   if defs.ROOTED_DEV:
     p = sp.Popen(["adb", "shell"], stdout=sp.PIPE, stdin=sp.PIPE)
