@@ -156,7 +156,6 @@ def sourceParserAddLocals(code_lines: List[str], params_list: MethodParams, is_s
 
   last_code_line = ""
   for line in code_lines:
-
     ext_lines.append(line)
 
     if line.startswith(I_CONST) or line.startswith(I_CONST_I4) or \
@@ -204,6 +203,13 @@ def sourceParserAddLocals(code_lines: List[str], params_list: MethodParams, is_s
       local_name = parseLocal(line)
       obj_type = line.split(":")[1]
       ext_lines.append(".local {0}, \"{0}\":{1}".format(local_name, obj_type))
+
+    elif line.startswith(I_MOVE_RESULT):
+      # invoke-virtual {v3}, Ljava/lang/String;->length()I
+      # move-result v6
+      local_name = parseLocal(line)
+      return_type = last_code_line.split(")")[1]
+      ext_lines.append(".local {0}, \"{0}\":{1}".format(local_name, return_type))
 
 
     # because line numbers are added before, and ":try_end_0"-lines can occur as well
