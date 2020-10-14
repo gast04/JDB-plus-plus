@@ -1,3 +1,7 @@
+Latest update: as this tool has quite some usage, I decided to create
+a usable GUI as working in the command line is not as comfortable as
+in a clickable GUI.
+
 # JDB++
 
 As I was not happy with the current debuggers available for APKs I 
