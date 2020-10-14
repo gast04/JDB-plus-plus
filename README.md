@@ -1,6 +1,7 @@
 Latest update: as this tool has quite some usage, I decided to create
 a usable GUI as working in the command line is not as comfortable as
-in a clickable GUI.
+in a clickable GUI. It will be rewrite in C++ with an QT gui. Updates
+will follow.
 
 # JDB++
 
