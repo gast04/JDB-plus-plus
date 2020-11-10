@@ -275,7 +275,8 @@ class SmaliClass:
     outfile.write("\n")
 
     for field in self.fields:
-      outfile.write(field + "\n\n")
+      outfile.write(field) # + "\n\n")
+    outfile.write("\n")
 
     for m in self.methods:
       outfile.write(str(self.methods[m]) + "\n")
@@ -288,9 +289,12 @@ class SmaliClass:
       print("ERROR: overwriting file: {}".format(filepath))
       sys.exit(-1)
 
+    output_lines = ""
     combined_lines = {}
     for m in self.methods:
-      combined_lines.update(self.methods[m].debug_lines)
+      #combined_lines.update(self.methods[m].debug_lines)
+      for dl in self.methods[m].debug_lines:
+        output_lines += "{} {}\n".format(dl, self.methods[m].debug_lines[dl])
 
     with open(filepath, "w+") as f:
-      json.dump(combined_lines, f)
+      f.write(output_lines)
