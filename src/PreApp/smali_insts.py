@@ -11,6 +11,7 @@ I_ADD_I8 = "add-int/lit8 "
 I_NEW_INST = "new-instance "
 I_CHECK_CAST = "check-cast "
 I_MOVE_RESULT_OBJ = "move-result-object "
+I_MOVE_RESULT = "move-result "
 I_IGET_OBJ = "iget-object "
 I_INV_STATIC = "invoke-static "
 I_INV_VIRT = "invoke-virtual "
@@ -20,4 +21,7 @@ I_INV_VIRT = "invoke-virtual "
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
     .line 97
     move-result-object v2
+
+    invoke-virtual {v3}, Ljava/lang/String;->length()I
+    move-result v6
 '''
