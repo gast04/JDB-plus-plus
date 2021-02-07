@@ -93,10 +93,11 @@ def checkDefinitionPaths() -> bool:
 
 def emulatorSetup(name, entry):
 
-  cmd = ["adb", "shell", "pm", "clear", name]
-  if defs.DEBUG_MODE: print("App clear cmd: {}".format(' '.join(cmd)))
-  p = sp.Popen(cmd, stdout=sp.PIPE)
-  p.wait()
+  # this resets the application this might not be wanted!
+  #cmd = ["adb", "shell", "pm", "clear", name]
+  #if defs.DEBUG_MODE: print("App clear cmd: {}".format(' '.join(cmd)))
+  #p = sp.Popen(cmd, stdout=sp.PIPE)
+  #p.wait()
 
   cmd = ["adb", "shell", "am", "start", "-D", "-n", name+"/"+entry]
   if defs.DEBUG_MODE: print("App start cmd: {}".format(' '.join(cmd)))

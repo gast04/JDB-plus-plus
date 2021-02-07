@@ -174,6 +174,15 @@ def sourceParserAddLocals(code_lines: List[str], params_list: MethodParams, is_s
       ext_lines.append(".local {0}, \"{0}\":I".format(local_name))
       var_scope[local_name] = "I"
 
+    elif line.startswith(I_NEW_ARRAY):
+      # new-array v13, v12, [B
+      # v13 -> holds array
+      # v12 -> array size
+      local_name = parseLocal(line)
+      array_type = line.split(" ")[-1]
+      ext_lines.append(".local {0}, \"{0}\":{1}".format(local_name, array_type))
+      var_scope[local_name] = array_type
+
     elif line.startswith(I_MOVE):
       local_t, local_s = parseLocals(line)
 
@@ -210,7 +219,6 @@ def sourceParserAddLocals(code_lines: List[str], params_list: MethodParams, is_s
       local_name = parseLocal(line)
       return_type = last_code_line.split(")")[1]
       ext_lines.append(".local {0}, \"{0}\":{1}".format(local_name, return_type))
-
 
     # because line numbers are added before, and ":try_end_0"-lines can occur as well
     if not line.startswith(".") and not line.startswith(":"):

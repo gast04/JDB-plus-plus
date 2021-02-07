@@ -56,7 +56,7 @@ parseJdbHeader(p, header, start_line)
 last_cmd = "l" # set default to locals
 while True:
   print(defs.cmd_sep_line)
-  cmd = input(defs.cmd_prefix).decode("UTF-8").strip()
+  cmd = input(defs.cmd_prefix).strip() #.decode("UTF-8").strip()
 
   if len(cmd) == 0:
     # exec previous command

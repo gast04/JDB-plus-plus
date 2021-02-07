@@ -206,6 +206,9 @@ class SmaliClass:
           self.fields.append(current_field)
         return i
 
+      elif line.startswith("#") or len(line.strip()) == 0:
+          continue # filter comments and empty lines
+
       else:
         current_field += "\n" + line
 
@@ -275,7 +278,7 @@ class SmaliClass:
     outfile.write("\n")
 
     for field in self.fields:
-      outfile.write(field) # + "\n\n")
+      outfile.write(field + "\n") # + "\n\n")
     outfile.write("\n")
 
     for m in self.methods:
@@ -292,9 +295,10 @@ class SmaliClass:
     output_lines = ""
     combined_lines = {}
     for m in self.methods:
-      #combined_lines.update(self.methods[m].debug_lines)
-      for dl in self.methods[m].debug_lines:
-        output_lines += "{} {}\n".format(dl, self.methods[m].debug_lines[dl])
+      combined_lines.update(self.methods[m].debug_lines)
+      #for dl in self.methods[m].debug_lines:
+      #  output_lines += "{} {}\n".format(dl, self.methods[m].debug_lines[dl])
 
     with open(filepath, "w+") as f:
-      f.write(output_lines)
+      json.dump(combined_lines, f)
+      # f.write(output_lines)
