@@ -95,6 +95,15 @@ in a very beta state.
 * ...
 
 ## Latest Updates
+* 07.2.2021
+  1. add new-array instruction to prepare step
+  2. small fixes
+
+* 18.6.2020
+  1. fix of native support, gdb hang sometimes during debugging
+     this was due to the `--remote-debug` flag which is very verbose and filled
+     the subprocess pipe until it hang.
+
 * 11.6.2020
   1. command line flag for rooted devices
   2. minor bug fixes
@@ -105,10 +114,6 @@ in a very beta state.
     android server.   
     It also loads only custom libraries, no system libraries, this makes
     the whole startup really fast (seconds!).
-* 18.6.2020
-  1. fix of native support, gdb hang sometimes during debugging
-     this was due to the `--remote-debug` flag which is very verbose and filled
-     the subprocess pipe until it hang.
 
 ## Questions
 Dont hesitate to ask, leave a comment or a pull request
